@@ -11,7 +11,6 @@ basemodel = from_pretrained_keras("keras-io/timeseries_forecasting_for_weather")
 # CSV 파일 불러오기
 df = pd.read_csv("C:/Users/seoye/ewha/mlops/mlops1/mpi_saale_2024/mpi_saale_2024.csv", dayfirst=True)
 
-# ✅ Date Time 열을 datetime 형식으로 변환
 df['Date Time'] = pd.to_datetime(df['Date Time'], dayfirst=True)
 
 # 사용할 피처와 타겟 (모든 피처 사용)
@@ -20,7 +19,6 @@ features = [
 ]
 target = "rain (mm)"
 
-# ✅ train, test 데이터셋 나누기 (datetime 형식으로 비교)
 train, test = df[df["Date Time"] < pd.Timestamp("2024-09-12")], df[df["Date Time"] >= pd.Timestamp("2024-09-13")]
 seq_length = 120  # LSTM 입력 시퀀스 길이
 
@@ -55,24 +53,23 @@ Xtest, ytest = create_sequences(test, features, target, seq_length)
 print(f"훈련 데이터 형태: {Xtrain.shape}")
 print(f"테스트 데이터 형태: {Xtest.shape}")
 
-# ✅ 모델 경로 설정을 다르게 지정하여 덮어쓰기 방지
 import time
 timestamp = time.strftime("%Y%m%d-%H%M%S")
 results_path = f"mljar_results_{timestamp}"
 
 # AutoML 모델 설정 (Feature Engineering 및 Selection 활성화)
 automl = AutoML(
-    results_path=results_path,         # ✅ 경로를 다르게 설정하여 덮어쓰기 방지
-    mode="Perform",                    # 성능 중심 모드
-    ml_task="regression",              # 회귀 문제로 설정
-    algorithms=["Random Forest", "Xgboost"],  # 사용 알고리즘
-    total_time_limit=3600,             # 학습 시간 제한 (초)
-    features_selection=True,           # Feature Selection 활성화
-    start_random_models=5,             # 무작위 모델 수
-    hill_climbing_steps=3,             # 최적화 단계 수
-    golden_features=True,              # 새로운 피처 조합 생성
-    train_ensemble=True,               # 앙상블 모델 학습
-    stack_models=True,                 # 모델 스태킹 활성화
+    results_path=results_path,        
+    mode="Perform",                    
+    ml_task="regression",              
+    algorithms=["Random Forest", "Xgboost"],  
+    total_time_limit=3600,             
+    features_selection=True,           
+    start_random_models=5,             
+    hill_climbing_steps=3,             
+    golden_features=True,              
+    train_ensemble=True,               
+    stack_models=True,                 
 )
 
 # AutoML 모델 학습
@@ -85,7 +82,6 @@ predictions = automl.predict(Xtest)
 y_true = np.expm1(ytest)
 y_pred = np.expm1(predictions)
 
-# 이진 분류로 변환 (비/무비 기준)
 threshold = 0.005
 y_true_bin = (y_true >= threshold).astype(int)
 y_pred_bin = (y_pred >= threshold).astype(int)

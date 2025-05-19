@@ -6,7 +6,6 @@ import numpy as np
 def random_sample(df, fraction=0.1):
     return df.sample(frac=fraction, random_state=42).reset_index(drop=True)
 
-# Feature Importance 계산 함수 (LightGBM + Early Stopping)
 def calculate_feature_importance(Xtrain, ytrain, features, n_top_features=7):
     import lightgbm as lgb
     from sklearn.model_selection import train_test_split
@@ -21,11 +20,11 @@ def calculate_feature_importance(Xtrain, ytrain, features, n_top_features=7):
     # LightGBM 모델 설정
     lgb_model = lgb.LGBMRegressor(
         random_state=42,
-        n_estimators=300,               # 최대 트리 개수
-        learning_rate=0.1,              # 학습률 증가
-        max_depth=5,                    # 트리 깊이 제한
-        num_leaves=31,                  # 잎 개수
-        n_jobs=-1                       # 병렬 처리
+        n_estimators=300,             
+        learning_rate=0.1,             
+        max_depth=5,                   
+        num_leaves=31,                 
+        n_jobs=-1                       
     )
 
     # LightGBM 모델 학습 (조기 종료를 위해 검증 데이터 사용)
@@ -71,7 +70,6 @@ features = [
 ]
 target = "rain (mm)"
 
-# train, test 데이터셋 나누기
 train, test = df[df["Date Time"] < pd.Timestamp("2024-09-12")], df[df["Date Time"] >= pd.Timestamp("2024-09-13")]
 
 # 데이터 샘플링 (데이터 양 줄이기)
